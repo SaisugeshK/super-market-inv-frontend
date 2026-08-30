@@ -12,7 +12,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/settings")
 @RequiredArgsConstructor
-@CrossOrigin("*")
 public class SettingController {
 
     private final SettingService service;

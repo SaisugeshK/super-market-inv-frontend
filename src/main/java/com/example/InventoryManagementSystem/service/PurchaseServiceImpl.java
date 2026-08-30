@@ -105,7 +105,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     private PurchaseResponseDto mapToDto(Purchase purchase) {
         return new PurchaseResponseDto(
                 purchase.getPurchaseId(),
-                purchase.getSupplier().getSupplierName(),
+                purchase.getSupplier() != null ? purchase.getSupplier().getSupplierName() : null,
                 purchase.getInvoiceNumber(),
                 purchase.getPurchaseDate(),
                 purchase.getTotalAmount(),
@@ -113,7 +113,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 purchase.getPaidAmount(),
                 purchase.getPendingAmount(),
                 purchase.getPaymentStatus(),
-                purchase.getCreatedBy().getUsername()
+                purchase.getCreatedBy() != null ? purchase.getCreatedBy().getUsername() : null
         );
     }
 }
