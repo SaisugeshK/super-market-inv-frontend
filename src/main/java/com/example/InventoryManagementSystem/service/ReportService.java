@@ -1,16 +1,20 @@
 package com.example.InventoryManagementSystem.service;
 
+import com.example.InventoryManagementSystem.Repository.CustomerRepository;
 import com.example.InventoryManagementSystem.Repository.ProductRepository;
+import com.example.InventoryManagementSystem.Repository.PurchaseItemRepository;
 import com.example.InventoryManagementSystem.Repository.PurchaseRepository;
 import com.example.InventoryManagementSystem.Repository.SalesItemRepository;
 import com.example.InventoryManagementSystem.Repository.SalesRepository;
-import com.example.InventoryManagementSystem.dto.PurchaseResponseDto;
-import com.example.InventoryManagementSystem.dto.SalesResponseDTO;
+import com.example.InventoryManagementSystem.dto.PurchaseReportRowDto;
+import com.example.InventoryManagementSystem.dto.SalesReportRowDto;
 import com.example.InventoryManagementSystem.dto.StockReportItemDto;
 import com.example.InventoryManagementSystem.dto.SupplierOutstandingDto;
 import com.example.InventoryManagementSystem.model.Product;
 import com.example.InventoryManagementSystem.model.Purchase;
+import com.example.InventoryManagementSystem.model.PurchaseItem;
 import com.example.InventoryManagementSystem.model.Sales;
+import com.example.InventoryManagementSystem.model.SalesItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,16 +29,19 @@ import java.util.stream.Collectors;
 public class ReportService {
 
     private final SalesRepository salesRepository;
-    private final PurchaseRepository purchaseRepository;
-    private final ProductRepository productRepository;
     private final SalesItemRepository salesItemRepository;
+    private final PurchaseRepository purchaseRepository;
+    private final PurchaseItemRepository purchaseItemRepository;
+    private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
 
     // ─── SALES REPORT ────────────────────────────────────────────────────────────
-    public List<SalesResponseDTO> getSalesReport(
+    public List<SalesReportRowDto> getSalesReport(
             LocalDateTime from,
             LocalDateTime to,
             Long counterId,
-            String paymentMethod) {
+            String paymentMethod,
+            String invoiceNumber) {
 
         List<Sales> sales;
 
@@ -47,12 +54,13 @@ public class ReportService {
         return sales.stream()
                 .filter(s -> counterId == null || counterId.equals(s.getCounterId()))
                 .filter(s -> paymentMethod == null || paymentMethod.equalsIgnoreCase(s.getPaymentMethod()))
-                .map(this::mapSalesToDto)
+                .filter(s -> invoiceNumber == null || invoiceNumber.equalsIgnoreCase(s.getInvoiceNumber()))
+                .map(this::mapSalesRow)
                 .collect(Collectors.toList());
     }
 
     // ─── PURCHASE REPORT ─────────────────────────────────────────────────────────
-    public List<PurchaseResponseDto> getPurchaseReport(
+    public List<PurchaseReportRowDto> getPurchaseReport(
             Long supplierId,
             LocalDateTime from,
             LocalDateTime to) {
@@ -68,7 +76,7 @@ public class ReportService {
         return purchases.stream()
                 .filter(p -> from == null || !p.getPurchaseDate().isBefore(from))
                 .filter(p -> to   == null || !p.getPurchaseDate().isAfter(to))
-                .map(this::mapPurchaseToDto)
+                .map(this::mapPurchaseRow)
                 .collect(Collectors.toList());
     }
 
@@ -116,9 +124,12 @@ public class ReportService {
     }
 
     // ─── PRODUCT SALES REPORT ────────────────────────────────────────────────────
-    public List<java.util.Map<String, Object>> getProductSalesReport() {
+    public List<java.util.Map<String, Object>> getProductSalesReport(LocalDateTime from, LocalDateTime to) {
 
-        List<Object[]> rows = salesItemRepository.getProductSalesSummary();
+        List<Object[]> rows = (from != null || to != null)
+                ? salesItemRepository.getProductSalesSummaryBetween(from, to)
+                : salesItemRepository.getProductSalesSummary();
+
         List<java.util.Map<String, Object>> result = new ArrayList<>();
 
         for (Object[] row : rows) {
@@ -145,30 +156,78 @@ public class ReportService {
         return new BigDecimal(value.toString());
     }
 
-    private SalesResponseDTO mapSalesToDto(Sales s) {
-        SalesResponseDTO dto = new SalesResponseDTO();
-        dto.setSaleId(s.getSaleId());
-        dto.setCustomerId(s.getCustomerId());
-        dto.setCreatedBy(s.getCreatedBy());
-        dto.setInvoiceNumber(s.getInvoiceNumber());
-        dto.setPaymentStatus(s.getPaymentStatus());
-        dto.setTotalAmount(s.getTotalAmount());
-        dto.setSaleDate(s.getSaleDate());
-        return dto;
+    private SalesReportRowDto mapSalesRow(Sales s) {
+
+        String customerName = s.getCustomerId() == null ? null
+                : customerRepository.findById(s.getCustomerId())
+                        .map(c -> c.getCustomerName())
+                        .orElse(null);
+
+        List<SalesReportRowDto.Line> lines = salesItemRepository.findBySaleId(s.getSaleId())
+                .stream()
+                .map(this::mapSalesLine)
+                .collect(Collectors.toList());
+
+        return SalesReportRowDto.builder()
+                .saleId(s.getSaleId())
+                .invoiceNumber(s.getInvoiceNumber())
+                .saleDate(s.getSaleDate())
+                .customerId(s.getCustomerId())
+                .customerName(customerName)
+                .counterId(s.getCounterId())
+                .paymentMethod(s.getPaymentMethod())
+                .paymentStatus(s.getPaymentStatus())
+                .totalAmount(s.getTotalAmount())
+                .items(lines)
+                .build();
     }
 
-    private PurchaseResponseDto mapPurchaseToDto(Purchase p) {
-        return new PurchaseResponseDto(
-                p.getPurchaseId(),
-                p.getSupplier().getSupplierName(),
-                p.getInvoiceNumber(),
-                p.getPurchaseDate(),
-                p.getTotalAmount(),
-                p.getTax(),
-                p.getPaidAmount(),
-                p.getPendingAmount(),
-                p.getPaymentStatus(),
-                p.getCreatedBy().getUsername()
-        );
+    private SalesReportRowDto.Line mapSalesLine(SalesItem si) {
+        String productName = productRepository.findById(si.getProductId())
+                .map(Product::getProductName)
+                .orElse("Unknown");
+        return SalesReportRowDto.Line.builder()
+                .productId(si.getProductId())
+                .productName(productName)
+                .quantity(si.getQuantity())
+                .sellingPrice(si.getSellingPrice())
+                .total(si.getTotal())
+                .build();
+    }
+
+    private PurchaseReportRowDto mapPurchaseRow(Purchase p) {
+
+        List<PurchaseReportRowDto.Line> lines = purchaseItemRepository
+                .findByPurchase_PurchaseId(p.getPurchaseId())
+                .stream()
+                .map(this::mapPurchaseLine)
+                .collect(Collectors.toList());
+
+        return PurchaseReportRowDto.builder()
+                .purchaseId(p.getPurchaseId())
+                .supplierName(p.getSupplier() != null ? p.getSupplier().getSupplierName() : null)
+                .invoiceNumber(p.getInvoiceNumber())
+                .purchaseDate(p.getPurchaseDate())
+                .totalAmount(p.getTotalAmount())
+                .tax(p.getTax())
+                .paidAmount(p.getPaidAmount())
+                .pendingAmount(p.getPendingAmount())
+                .paymentStatus(p.getPaymentStatus())
+                .createdBy(p.getCreatedBy() != null ? p.getCreatedBy().getUsername() : null)
+                .items(lines)
+                .build();
+    }
+
+    private PurchaseReportRowDto.Line mapPurchaseLine(PurchaseItem pi) {
+        Product product = pi.getProduct();
+        return PurchaseReportRowDto.Line.builder()
+                .productId(product != null ? product.getProductId() : null)
+                .productName(product != null ? product.getProductName() : "Unknown")
+                .quantity(pi.getQuantity())
+                .unit(product != null ? product.getUnit() : null)
+                .purchasePrice(pi.getPurchasePrice())
+                .taxAmount(pi.getTaxAmount())
+                .total(pi.getTotal())
+                .build();
     }
 }

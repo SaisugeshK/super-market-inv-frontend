@@ -1,7 +1,7 @@
 package com.example.InventoryManagementSystem.controllor;
 
-import com.example.InventoryManagementSystem.dto.PurchaseResponseDto;
-import com.example.InventoryManagementSystem.dto.SalesResponseDTO;
+import com.example.InventoryManagementSystem.dto.PurchaseReportRowDto;
+import com.example.InventoryManagementSystem.dto.SalesReportRowDto;
 import com.example.InventoryManagementSystem.dto.StockReportItemDto;
 import com.example.InventoryManagementSystem.dto.SupplierOutstandingDto;
 import com.example.InventoryManagementSystem.service.ReportService;
@@ -24,28 +24,31 @@ public class ReportController {
 
     /**
      * GET /api/reports/sales
-     * Params: from, to (ISO datetime), counterId, paymentMethod
+     * Params: from, to (ISO datetime), counterId, paymentMethod, invoiceNumber
+     * Each row includes customer name and product line items.
      */
     @GetMapping("/sales")
-    public ResponseEntity<List<SalesResponseDTO>> getSalesReport(
+    public ResponseEntity<List<SalesReportRowDto>> getSalesReport(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(required = false) Long counterId,
-            @RequestParam(required = false) String paymentMethod) {
+            @RequestParam(required = false) String paymentMethod,
+            @RequestParam(required = false) String invoiceNumber) {
 
         return ResponseEntity.ok(
-                reportService.getSalesReport(from, to, counterId, paymentMethod)
+                reportService.getSalesReport(from, to, counterId, paymentMethod, invoiceNumber)
         );
     }
 
     /**
      * GET /api/reports/purchases
      * Params: supplierId, from, to (ISO datetime)
+     * Each row includes product line items (product, qty, unit, purchase price).
      */
     @GetMapping("/purchases")
-    public ResponseEntity<List<PurchaseResponseDto>> getPurchaseReport(
+    public ResponseEntity<List<PurchaseReportRowDto>> getPurchaseReport(
             @RequestParam(required = false) Long supplierId,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
@@ -77,10 +80,16 @@ public class ReportController {
 
     /**
      * GET /api/reports/product-sales
+     * Params: from, to (ISO datetime) — optional date range.
      * Returns quantity sold and revenue per product.
      */
     @GetMapping("/product-sales")
-    public ResponseEntity<List<Map<String, Object>>> getProductSalesReport() {
-        return ResponseEntity.ok(reportService.getProductSalesReport());
+    public ResponseEntity<List<Map<String, Object>>> getProductSalesReport(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+
+        return ResponseEntity.ok(reportService.getProductSalesReport(from, to));
     }
 }
