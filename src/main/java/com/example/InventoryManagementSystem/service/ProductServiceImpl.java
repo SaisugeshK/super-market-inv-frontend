@@ -5,6 +5,9 @@ import com.example.InventoryManagementSystem.dto.ProductResponseDTO;
 import com.example.InventoryManagementSystem.model.Product;
 import com.example.InventoryManagementSystem.Repository.ProductBarcodeRepository;
 import com.example.InventoryManagementSystem.Repository.ProductRepository;
+import com.example.InventoryManagementSystem.Repository.PurchaseItemRepository;
+import com.example.InventoryManagementSystem.Repository.SalesItemRepository;
+import com.example.InventoryManagementSystem.Repository.StockMovementRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +19,20 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository repository;
     private final ProductBarcodeRepository barcodeRepository;
+    private final StockMovementRepository stockMovementRepository;
+    private final PurchaseItemRepository purchaseItemRepository;
+    private final SalesItemRepository salesItemRepository;
 
     public ProductServiceImpl(ProductRepository repository,
-                              ProductBarcodeRepository barcodeRepository) {
+                              ProductBarcodeRepository barcodeRepository,
+                              StockMovementRepository stockMovementRepository,
+                              PurchaseItemRepository purchaseItemRepository,
+                              SalesItemRepository salesItemRepository) {
         this.repository = repository;
         this.barcodeRepository = barcodeRepository;
+        this.stockMovementRepository = stockMovementRepository;
+        this.purchaseItemRepository = purchaseItemRepository;
+        this.salesItemRepository = salesItemRepository;
     }
 
     // =======================
@@ -123,6 +135,7 @@ public class ProductServiceImpl implements ProductService {
 
         return repository.findAll()
                 .stream()
+                .filter(p -> p.getStatus() == null || !p.getStatus().equalsIgnoreCase("inactive"))
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -186,6 +199,19 @@ public class ProductServiceImpl implements ProductService {
         Product p = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        repository.delete(p);
+        // A product referenced by stock_movements / purchase_items / sales_items
+        // cannot be hard-deleted (FK constraint). Soft-delete so history stays intact;
+        // getAllProducts() hides inactive products.
+        boolean hasHistory =
+                !stockMovementRepository.findByProduct_ProductId(id).isEmpty()
+                || purchaseItemRepository.existsByProduct_ProductId(id)
+                || salesItemRepository.existsByProductId(id);
+
+        if (hasHistory) {
+            p.setStatus("inactive");
+            repository.save(p);
+        } else {
+            repository.delete(p);
+        }
     }
 }

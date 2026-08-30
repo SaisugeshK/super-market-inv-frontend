@@ -10,4 +10,6 @@ public interface PurchaseItemRepository
 
     // line items for a purchase (purchase / supplier history detail)
     List<PurchaseItem> findByPurchase_PurchaseId(Long purchaseId);
+
+    boolean existsByProduct_ProductId(Long productId);
 }

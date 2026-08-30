@@ -14,6 +14,8 @@ public interface SalesItemRepository extends JpaRepository<SalesItem, Long> {
 
     List<SalesItem> findBySaleId(Long saleId);
 
+    boolean existsByProductId(Long productId);
+
     // Product sales report: qty sold + revenue per product
     @Query("SELECT si.productId, SUM(si.quantity), SUM(si.total) FROM SalesItem si GROUP BY si.productId")
     List<Object[]> getProductSalesSummary();
