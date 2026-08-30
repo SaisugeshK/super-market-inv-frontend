@@ -40,7 +40,11 @@ public class Purchase {
     @Column(name = "paid_amount", precision = 12, scale = 2)
     private BigDecimal paidAmount = BigDecimal.ZERO;
 
-    // auto-computed: totalAmount - paidAmount
+    // total value of goods sent back to the supplier (sum of purchase-return items)
+    @Column(name = "returned_amount", precision = 12, scale = 2)
+    private BigDecimal returnedAmount = BigDecimal.ZERO;
+
+    // auto-computed: totalAmount - returnedAmount - paidAmount
     @Column(name = "pending_amount", precision = 12, scale = 2)
     private BigDecimal pendingAmount = BigDecimal.ZERO;
 
@@ -63,9 +67,12 @@ public class Purchase {
     }
 
     private void computePending() {
-        BigDecimal total = this.totalAmount != null ? this.totalAmount : BigDecimal.ZERO;
-        BigDecimal paid  = this.paidAmount  != null ? this.paidAmount  : BigDecimal.ZERO;
-        this.pendingAmount = total.subtract(paid);
+        BigDecimal total    = this.totalAmount    != null ? this.totalAmount    : BigDecimal.ZERO;
+        BigDecimal paid     = this.paidAmount     != null ? this.paidAmount     : BigDecimal.ZERO;
+        BigDecimal returned = this.returnedAmount != null ? this.returnedAmount : BigDecimal.ZERO;
+
+        // what you still owe the supplier, net of goods returned
+        this.pendingAmount = total.subtract(returned).subtract(paid);
 
         if (this.pendingAmount.compareTo(BigDecimal.ZERO) <= 0) {
             this.paymentStatus = "FULLY_PAID";

@@ -1,16 +1,20 @@
 package com.example.InventoryManagementSystem.service;
 
 import com.example.InventoryManagementSystem.Repository.ProductRepository;
+import com.example.InventoryManagementSystem.Repository.PurchaseItemRepository;
 import com.example.InventoryManagementSystem.Repository.PurchaseRepository;
 import com.example.InventoryManagementSystem.Repository.UserRepository;
 import com.example.InventoryManagementSystem.dto.PurchaseRequestDto;
 import com.example.InventoryManagementSystem.dto.PurchaseResponseDto;
+import com.example.InventoryManagementSystem.model.Product;
 import com.example.InventoryManagementSystem.model.Purchase;
+import com.example.InventoryManagementSystem.model.PurchaseItem;
 import com.example.InventoryManagementSystem.model.Supplier;
 import com.example.InventoryManagementSystem.model.User;
 import com.example.InventoryManagementSystem.Repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,6 +26,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     private final PurchaseRepository purchaseRepository;
     private final SupplierRepository supplierRepository;
     private final UserRepository userRepository;
+    private final PurchaseItemRepository purchaseItemRepository;
+    private final ProductRepository productRepository;
 
     // CREATE PURCHASE
     @Override
@@ -93,11 +99,25 @@ public class PurchaseServiceImpl implements PurchaseService {
         return mapToDto(updated);
     }
 
-    // DELETE PURCHASE
+    // DELETE PURCHASE — also removes its line items and reverses the stock they added
     @Override
+    @Transactional
     public void deletePurchase(Long id) {
         Purchase purchase = purchaseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Purchase not found"));
+
+        List<PurchaseItem> items = purchaseItemRepository.findByPurchase_PurchaseId(id);
+        for (PurchaseItem item : items) {
+            Product product = item.getProduct();
+            if (product != null) {
+                int qty = item.getQuantity() != null ? item.getQuantity() : 0;
+                int current = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+                product.setStockQuantity(current - qty);
+                productRepository.save(product);
+            }
+        }
+        purchaseItemRepository.deleteAll(items);
+
         purchaseRepository.delete(purchase);
     }
 
@@ -113,7 +133,9 @@ public class PurchaseServiceImpl implements PurchaseService {
                 purchase.getPaidAmount(),
                 purchase.getPendingAmount(),
                 purchase.getPaymentStatus(),
-                purchase.getCreatedBy() != null ? purchase.getCreatedBy().getUsername() : null
+                purchase.getCreatedBy() != null ? purchase.getCreatedBy().getUsername() : null,
+                purchase.getSupplier() != null ? purchase.getSupplier().getSupplierId() : null,
+                purchase.getReturnedAmount()
         );
     }
 }

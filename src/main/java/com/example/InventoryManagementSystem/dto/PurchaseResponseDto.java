@@ -31,4 +31,8 @@ public class PurchaseResponseDto {
     private String paymentStatus;
 
     private String createdBy;
+
+    private Long supplierId;
+
+    private BigDecimal returnedAmount;
 }

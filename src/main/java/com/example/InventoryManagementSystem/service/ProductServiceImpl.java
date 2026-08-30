@@ -38,6 +38,10 @@ public class ProductServiceImpl implements ProductService {
     // =======================
     // ENTITY → DTO MAPPER
     // =======================
+    private boolean isActive(Product p) {
+        return p.getStatus() == null || !p.getStatus().equalsIgnoreCase("inactive");
+    }
+
     private ProductResponseDTO mapToDTO(Product p) {
 
         ProductResponseDTO dto = new ProductResponseDTO();
@@ -108,6 +112,10 @@ public class ProductServiceImpl implements ProductService {
                         .orElseThrow(() -> new RuntimeException(
                                 "No product found for barcode: " + barcode)));
 
+        if (!isActive(p)) {
+            throw new RuntimeException("Product is inactive / removed: " + p.getProductName());
+        }
+
         return mapToDTO(p);
     }
 
@@ -123,6 +131,7 @@ public class ProductServiceImpl implements ProductService {
 
         return repository.searchByNameOrBarcode(term.trim())
                 .stream()
+                .filter(this::isActive)
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }

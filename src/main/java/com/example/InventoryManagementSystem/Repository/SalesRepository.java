@@ -19,6 +19,8 @@ public interface SalesRepository extends JpaRepository<Sales, Long> {
     // Sales by counter
     List<Sales> findByCounterId(Long counterId);
 
+    boolean existsByCounterId(Long counterId);
+
     // Today's total sales amount
     @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sales s WHERE s.saleDate >= :startOfDay")
     BigDecimal getTodayTotalSales(@Param("startOfDay") LocalDateTime startOfDay);
