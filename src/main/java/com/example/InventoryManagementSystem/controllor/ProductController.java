@@ -34,6 +34,18 @@ public class ProductController {
         return ResponseEntity.ok(service.getAllProducts());
     }
 
+    // Barcode-based billing: scan a barcode, get the product
+    @GetMapping("/barcode/{barcode}")
+    public ResponseEntity<ProductResponseDTO> getByBarcode(@PathVariable String barcode) {
+        return ResponseEntity.ok(service.getProductByBarcode(barcode));
+    }
+
+    // Fast billing: type-to-search by name or barcode
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductResponseDTO>> search(@RequestParam(name = "q", required = false) String q) {
+        return ResponseEntity.ok(service.searchProducts(q));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> update(
             @PathVariable Long id,

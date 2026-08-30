@@ -7,7 +7,9 @@ import com.example.InventoryManagementSystem.Repository.SalesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,16 +19,27 @@ public class SalesServiceImpl implements SalesService {
 
     private final SalesRepository salesRepository;
 
+    // AUTO-GENERATE invoice number: INV-YYYYMMDD-XXXXX
+    private String generateInvoiceNumber() {
+        String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        long count = salesRepository.count() + 1;
+        return String.format("INV-%s-%05d", datePart, count);
+    }
+
     // CREATE SALE
     @Override
     public SalesResponseDTO createSale(SalesRequestDTO dto) {
 
         Sales sale = new Sales();
 
+        String invoiceNumber = (dto.getInvoiceNumber() != null && !dto.getInvoiceNumber().isBlank())
+                ? dto.getInvoiceNumber()
+                : generateInvoiceNumber();
+
         sale.setCustomerId(dto.getCustomerId());
         sale.setCreatedBy(dto.getCreatedBy());
         sale.setCounterId(dto.getCounterId());
-        sale.setInvoiceNumber(dto.getInvoiceNumber());
+        sale.setInvoiceNumber(invoiceNumber);
         sale.setPaymentMethod(dto.getPaymentMethod());
         sale.setPaymentStatus(dto.getPaymentStatus());
         sale.setTotalAmount(dto.getTotalAmount());

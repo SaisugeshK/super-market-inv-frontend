@@ -3,6 +3,7 @@ package com.example.InventoryManagementSystem.service;
 import com.example.InventoryManagementSystem.dto.ProductRequestDTO;
 import com.example.InventoryManagementSystem.dto.ProductResponseDTO;
 import com.example.InventoryManagementSystem.model.Product;
+import com.example.InventoryManagementSystem.Repository.ProductBarcodeRepository;
 import com.example.InventoryManagementSystem.Repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,9 +15,12 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository repository;
+    private final ProductBarcodeRepository barcodeRepository;
 
-    public ProductServiceImpl(ProductRepository repository) {
+    public ProductServiceImpl(ProductRepository repository,
+                              ProductBarcodeRepository barcodeRepository) {
         this.repository = repository;
+        this.barcodeRepository = barcodeRepository;
     }
 
     // =======================
@@ -78,6 +82,37 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         return mapToDTO(p);
+    }
+
+    // =======================
+    // GET BY BARCODE  (barcode-based billing)
+    // =======================
+    @Override
+    public ProductResponseDTO getProductByBarcode(String barcode) {
+
+        Product p = repository.findByBarcode(barcode)
+                .orElseGet(() -> barcodeRepository.findByBarcode(barcode)
+                        .flatMap(pb -> repository.findById(pb.getProductId()))
+                        .orElseThrow(() -> new RuntimeException(
+                                "No product found for barcode: " + barcode)));
+
+        return mapToDTO(p);
+    }
+
+    // =======================
+    // SEARCH  (type-to-search fast billing)
+    // =======================
+    @Override
+    public List<ProductResponseDTO> searchProducts(String term) {
+
+        if (term == null || term.isBlank()) {
+            return getAllProducts();
+        }
+
+        return repository.searchByNameOrBarcode(term.trim())
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     // =======================

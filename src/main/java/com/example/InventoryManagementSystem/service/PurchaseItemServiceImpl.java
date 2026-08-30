@@ -5,9 +5,11 @@ import com.example.InventoryManagementSystem.dto.PurchaseItemResponseDto;
 import com.example.InventoryManagementSystem.model.Product;
 import com.example.InventoryManagementSystem.model.Purchase;
 import com.example.InventoryManagementSystem.model.PurchaseItem;
+import com.example.InventoryManagementSystem.model.StockMovement;
 import com.example.InventoryManagementSystem.Repository.ProductRepository;
 import com.example.InventoryManagementSystem.Repository.PurchaseItemRepository;
 import com.example.InventoryManagementSystem.Repository.PurchaseRepository;
+import com.example.InventoryManagementSystem.Repository.StockMovementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
     private final PurchaseItemRepository purchaseItemRepository;
     private final PurchaseRepository purchaseRepository;
     private final ProductRepository productRepository;
+    private final StockMovementRepository stockMovementRepository;
 
     // CREATE — also increments stock
     @Override
@@ -49,6 +52,15 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
         int currentStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
         product.setStockQuantity(currentStock + request.getQuantity());
         productRepository.save(product);
+
+        // record stock movement (history / traceability)
+        stockMovementRepository.save(StockMovement.builder()
+                .product(product)
+                .movementType("PURCHASE_IN")
+                .quantity(request.getQuantity())
+                .referenceId(Math.toIntExact(purchase.getPurchaseId()))
+                .notes("Stock added from purchase " + purchase.getInvoiceNumber())
+                .build());
 
         return mapToResponse(savedPurchaseItem);
     }

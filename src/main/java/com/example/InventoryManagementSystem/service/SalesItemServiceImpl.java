@@ -4,8 +4,10 @@ import com.example.InventoryManagementSystem.dto.SalesItemRequestDTO;
 import com.example.InventoryManagementSystem.dto.SalesItemResponseDTO;
 import com.example.InventoryManagementSystem.model.Product;
 import com.example.InventoryManagementSystem.model.SalesItem;
+import com.example.InventoryManagementSystem.model.StockMovement;
 import com.example.InventoryManagementSystem.Repository.ProductRepository;
 import com.example.InventoryManagementSystem.Repository.SalesItemRepository;
+import com.example.InventoryManagementSystem.Repository.StockMovementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ public class SalesItemServiceImpl implements SalesItemService {
 
     private final SalesItemRepository salesItemRepository;
     private final ProductRepository productRepository;
+    private final StockMovementRepository stockMovementRepository;
 
     // CREATE SALES ITEM  ⭐ MUST MATCH INTERFACE EXACTLY
     @Override
@@ -52,6 +55,15 @@ public class SalesItemServiceImpl implements SalesItemService {
         item.setTotal(total);
 
         SalesItem saved = salesItemRepository.save(item);
+
+        // record stock movement (history / traceability)
+        stockMovementRepository.save(StockMovement.builder()
+                .product(product)
+                .movementType("SALE_OUT")
+                .quantity(dto.getQuantity())
+                .referenceId(dto.getSaleId() != null ? Math.toIntExact(dto.getSaleId()) : null)
+                .notes("Stock deducted from sale " + dto.getSaleId())
+                .build());
 
         return mapToDTO(saved);
     }
