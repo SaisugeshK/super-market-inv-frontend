@@ -24,6 +24,10 @@ public class PurchaseResponseDto {
 
     private BigDecimal tax;
 
+    private BigDecimal paidAmount;
+
+    private BigDecimal pendingAmount;
+
     private String paymentStatus;
 
     private String createdBy;

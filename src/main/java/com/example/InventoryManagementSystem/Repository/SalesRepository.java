@@ -2,9 +2,28 @@ package com.example.InventoryManagementSystem.Repository;
 
 import com.example.InventoryManagementSystem.model.Sales;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public interface SalesRepository extends JpaRepository<Sales, Long> {
 
+    // Sales between date range
+    List<Sales> findBySaleDateBetween(LocalDateTime from, LocalDateTime to);
+
+    // Sales by counter
+    List<Sales> findByCounterId(Long counterId);
+
+    // Today's total sales amount
+    @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sales s WHERE s.saleDate >= :startOfDay")
+    BigDecimal getTodayTotalSales(@Param("startOfDay") LocalDateTime startOfDay);
+
+    // Today's bill count
+    @Query("SELECT COUNT(s) FROM Sales s WHERE s.saleDate >= :startOfDay")
+    long getTodayBillCount(@Param("startOfDay") LocalDateTime startOfDay);
 }

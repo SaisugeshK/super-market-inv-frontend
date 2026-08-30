@@ -18,9 +18,17 @@ public class Sales {
     private Long saleId;
 
     private Long customerId;
+
     private Long createdBy;
 
+    // billing counter that processed this sale
+    @Column(name = "counter_id")
+    private Long counterId;
+
     private String invoiceNumber;
+
+    private String paymentMethod; // CASH, UPI, CARD
+
     private String paymentStatus;
 
     private BigDecimal totalAmount;

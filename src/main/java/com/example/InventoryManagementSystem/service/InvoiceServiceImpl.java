@@ -7,6 +7,8 @@ import com.example.InventoryManagementSystem.Repository.InvoiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,12 +18,24 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Autowired
     private InvoiceRepository repository;
 
+    // AUTO-GENERATE invoice number: INV-YYYYMMDD-XXXXX
+    private String generateInvoiceNumber() {
+        String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        long count = repository.count() + 1;
+        return String.format("INV-%s-%05d", datePart, count);
+    }
+
     @Override
     public InvoiceDto createInvoice(InvoiceDto dto) {
 
         Invoice invoice = new Invoice();
 
-        invoice.setInvoiceNumber(dto.getInvoiceNumber());
+        // auto-generate if not provided
+        String invoiceNumber = (dto.getInvoiceNumber() != null && !dto.getInvoiceNumber().isBlank())
+                ? dto.getInvoiceNumber()
+                : generateInvoiceNumber();
+
+        invoice.setInvoiceNumber(invoiceNumber);
         invoice.setCustomerId(dto.getCustomerId());
         invoice.setCounterId(dto.getCounterId());
         invoice.setSubtotal(dto.getSubtotal());
@@ -37,6 +51,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice saved = repository.save(invoice);
 
         dto.setInvoiceId(saved.getInvoiceId());
+        dto.setInvoiceNumber(saved.getInvoiceNumber());
 
         return dto;
     }
@@ -120,7 +135,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public void deleteInvoice(Long id) {
-
         repository.deleteById(id);
     }
 }

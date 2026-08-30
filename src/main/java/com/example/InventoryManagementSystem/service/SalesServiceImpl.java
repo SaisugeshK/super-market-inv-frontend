@@ -1,6 +1,5 @@
 package com.example.InventoryManagementSystem.service;
 
-
 import com.example.InventoryManagementSystem.dto.SalesRequestDTO;
 import com.example.InventoryManagementSystem.dto.SalesResponseDTO;
 import com.example.InventoryManagementSystem.model.Sales;
@@ -26,11 +25,11 @@ public class SalesServiceImpl implements SalesService {
 
         sale.setCustomerId(dto.getCustomerId());
         sale.setCreatedBy(dto.getCreatedBy());
+        sale.setCounterId(dto.getCounterId());
         sale.setInvoiceNumber(dto.getInvoiceNumber());
+        sale.setPaymentMethod(dto.getPaymentMethod());
         sale.setPaymentStatus(dto.getPaymentStatus());
         sale.setTotalAmount(dto.getTotalAmount());
-
-        // important business logic
         sale.setSaleDate(LocalDateTime.now());
 
         Sales saved = salesRepository.save(sale);
@@ -67,7 +66,9 @@ public class SalesServiceImpl implements SalesService {
 
         sale.setCustomerId(dto.getCustomerId());
         sale.setCreatedBy(dto.getCreatedBy());
+        sale.setCounterId(dto.getCounterId());
         sale.setInvoiceNumber(dto.getInvoiceNumber());
+        sale.setPaymentMethod(dto.getPaymentMethod());
         sale.setPaymentStatus(dto.getPaymentStatus());
         sale.setTotalAmount(dto.getTotalAmount());
 
@@ -94,7 +95,9 @@ public class SalesServiceImpl implements SalesService {
         dto.setSaleId(sale.getSaleId());
         dto.setCustomerId(sale.getCustomerId());
         dto.setCreatedBy(sale.getCreatedBy());
+        dto.setCounterId(sale.getCounterId());
         dto.setInvoiceNumber(sale.getInvoiceNumber());
+        dto.setPaymentMethod(sale.getPaymentMethod());
         dto.setPaymentStatus(sale.getPaymentStatus());
         dto.setTotalAmount(sale.getTotalAmount());
         dto.setSaleDate(sale.getSaleDate());

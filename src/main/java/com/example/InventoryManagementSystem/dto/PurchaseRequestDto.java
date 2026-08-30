@@ -15,6 +15,10 @@ public class PurchaseRequestDto {
 
     private BigDecimal tax;
 
+    // amount paid upfront (0 = fully pending)
+    private BigDecimal paidAmount;
+
+    // FULLY_PAID / PARTIALLY_PAID / PENDING — auto-derived if not set
     private String paymentStatus;
 
     private Long createdBy;

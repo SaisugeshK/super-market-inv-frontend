@@ -34,6 +34,10 @@ public class Supplier {
     @Column(columnDefinition = "TEXT")
     private String address;
 
+    // GST / Tax registration number
+    @Column(name = "gst_number", length = 20)
+    private String gstNumber;
+
     @Column(nullable = false)
     private String status = "active";
 
@@ -42,5 +46,6 @@ public class Supplier {
 
     @PrePersist
     public void prePersist() {
+        this.createdAt = OffsetDateTime.now();
     }
 }

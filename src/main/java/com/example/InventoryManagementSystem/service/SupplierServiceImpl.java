@@ -21,7 +21,6 @@ public class SupplierServiceImpl implements SupplierService {
 
         if (request.getEmail() != null &&
                 supplierRepository.existsByEmail(request.getEmail())) {
-
             throw new RuntimeException("Supplier email already exists");
         }
 
@@ -31,9 +30,8 @@ public class SupplierServiceImpl implements SupplierService {
                 .phone(request.getPhone())
                 .email(request.getEmail())
                 .address(request.getAddress())
-                .status(request.getStatus() != null
-                        ? request.getStatus()
-                        : "active")
+                .gstNumber(request.getGstNumber())
+                .status(request.getStatus() != null ? request.getStatus() : "active")
                 .build();
 
         Supplier savedSupplier = supplierRepository.save(supplier);
@@ -45,10 +43,7 @@ public class SupplierServiceImpl implements SupplierService {
     public SupplierResponse getSupplierById(Long supplierId) {
 
         Supplier supplier = supplierRepository.findById(supplierId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Supplier not found with id : "
-                                        + supplierId));
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier not found with id : " + supplierId));
 
         return mapToResponse(supplier);
     }
@@ -63,21 +58,17 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public SupplierResponse updateSupplier(
-            Long supplierId,
-            SupplierRequest request) {
+    public SupplierResponse updateSupplier(Long supplierId, SupplierRequest request) {
 
         Supplier supplier = supplierRepository.findById(supplierId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Supplier not found with id : "
-                                        + supplierId));
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier not found with id : " + supplierId));
 
         supplier.setSupplierName(request.getSupplierName());
         supplier.setContactPerson(request.getContactPerson());
         supplier.setPhone(request.getPhone());
         supplier.setEmail(request.getEmail());
         supplier.setAddress(request.getAddress());
+        supplier.setGstNumber(request.getGstNumber());
         supplier.setStatus(request.getStatus());
 
         Supplier updatedSupplier = supplierRepository.save(supplier);
@@ -89,10 +80,7 @@ public class SupplierServiceImpl implements SupplierService {
     public void deleteSupplier(Long supplierId) {
 
         Supplier supplier = supplierRepository.findById(supplierId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Supplier not found with id : "
-                                        + supplierId));
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier not found with id : " + supplierId));
 
         supplierRepository.delete(supplier);
     }
@@ -106,6 +94,7 @@ public class SupplierServiceImpl implements SupplierService {
                 .phone(supplier.getPhone())
                 .email(supplier.getEmail())
                 .address(supplier.getAddress())
+                .gstNumber(supplier.getGstNumber())
                 .status(supplier.getStatus())
                 .createdAt(supplier.getCreatedAt())
                 .build();

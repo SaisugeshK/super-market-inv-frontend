@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-
-=======
 package com.example.InventoryManagementSystem.model;
 
 import jakarta.persistence.*;
@@ -39,4 +36,3 @@ public class Category {
         this.createdAt = OffsetDateTime.now();
     }
 }
->>>>>>> e61ae9f (amar)
