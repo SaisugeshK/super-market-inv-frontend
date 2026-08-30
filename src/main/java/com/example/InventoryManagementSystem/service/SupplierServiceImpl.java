@@ -4,6 +4,7 @@ import com.example.InventoryManagementSystem.dto.SupplierRequest;
 import com.example.InventoryManagementSystem.dto.SupplierResponse;
 import com.example.InventoryManagementSystem.exception.ResourceNotFoundException;
 import com.example.InventoryManagementSystem.model.Supplier;
+import com.example.InventoryManagementSystem.Repository.PurchaseRepository;
 import com.example.InventoryManagementSystem.Repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.List;
 public class SupplierServiceImpl implements SupplierService {
 
     private final SupplierRepository supplierRepository;
+    private final PurchaseRepository purchaseRepository;
 
     @Override
     public SupplierResponse createSupplier(SupplierRequest request) {
@@ -53,6 +55,7 @@ public class SupplierServiceImpl implements SupplierService {
 
         return supplierRepository.findAll()
                 .stream()
+                .filter(s -> s.getStatus() == null || !s.getStatus().equalsIgnoreCase("inactive"))
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -82,7 +85,14 @@ public class SupplierServiceImpl implements SupplierService {
         Supplier supplier = supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier not found with id : " + supplierId));
 
-        supplierRepository.delete(supplier);
+        // Supplier referenced by purchases cannot be hard-deleted (FK constraint).
+        // Soft-delete so purchase history stays intact; getAllSuppliers() hides inactive.
+        if (purchaseRepository.existsBySupplier_SupplierId(supplierId)) {
+            supplier.setStatus("inactive");
+            supplierRepository.save(supplier);
+        } else {
+            supplierRepository.delete(supplier);
+        }
     }
 
     private SupplierResponse mapToResponse(Supplier supplier) {

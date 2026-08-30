@@ -13,6 +13,8 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     @Query("SELECT p FROM Purchase p WHERE p.supplier.supplierId = :supplierId")
     List<Purchase> findBySupplierSupplierId(@Param("supplierId") Long supplierId);
 
+    boolean existsBySupplier_SupplierId(Long supplierId);
+
     // Supplier outstanding: total purchases, total paid, total pending
     @Query("SELECT p.supplier.supplierId, p.supplier.supplierName, " +
            "SUM(p.totalAmount), SUM(p.paidAmount), SUM(p.pendingAmount) " +
