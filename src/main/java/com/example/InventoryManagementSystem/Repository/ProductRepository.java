@@ -22,7 +22,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> searchByNameOrBarcode(@Param("term") String term);
 
     // Low stock: products where stockQuantity <= minimumStock
-    @Query("SELECT p FROM Product p WHERE p.stockQuantity IS NOT NULL AND p.minimumStock IS NOT NULL AND p.stockQuantity <= p.minimumStock")
+    @Query("SELECT p FROM Product p WHERE p.stockQuantity IS NOT NULL AND p.minimumStock IS NOT NULL AND p.stockQuantity <= p.minimumStock AND (p.status IS NULL OR LOWER(p.status) <> 'inactive')")
     List<Product> findLowStockProducts();
 
     // Total pending from supplier across purchases

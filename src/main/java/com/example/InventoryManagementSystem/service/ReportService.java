@@ -102,6 +102,7 @@ public class ReportService {
     public List<StockReportItemDto> getStockReport() {
 
         return productRepository.findAll().stream()
+                .filter(p -> p.getStatus() == null || !p.getStatus().equalsIgnoreCase("inactive"))
                 .map(p -> {
                     int qty = p.getStockQuantity() != null ? p.getStockQuantity() : 0;
                     int minStock = p.getMinimumStock() != null ? p.getMinimumStock() : 0;
