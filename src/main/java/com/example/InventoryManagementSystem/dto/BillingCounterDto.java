@@ -1,11 +1,14 @@
 package com.example.InventoryManagementSystem.dto;
 
+import java.math.BigDecimal;
+
 public class BillingCounterDto {
 
     private Long counterId;
     private String counterName;
     private String location;
     private String status;
+    private BigDecimal initialOpeningCash;
 
     // Getters and Setters
 
@@ -39,5 +42,13 @@ public class BillingCounterDto {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public BigDecimal getInitialOpeningCash() {
+        return initialOpeningCash;
+    }
+
+    public void setInitialOpeningCash(BigDecimal initialOpeningCash) {
+        this.initialOpeningCash = initialOpeningCash;
     }
 }

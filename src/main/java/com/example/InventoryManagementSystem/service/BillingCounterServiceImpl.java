@@ -36,7 +36,8 @@ public class BillingCounterServiceImpl implements BillingCounterService {
 
         counter.setCounterName(dto.getCounterName());
         counter.setLocation(dto.getLocation());
-        counter.setStatus(dto.getStatus());
+        counter.setStatus(dto.getStatus() != null ? dto.getStatus() : "active");
+        counter.setInitialOpeningCash(dto.getInitialOpeningCash());
 
         BillingCounter saved = repository.save(counter);
 
@@ -58,6 +59,7 @@ public class BillingCounterServiceImpl implements BillingCounterService {
             dto.setCounterName(counter.getCounterName());
             dto.setLocation(counter.getLocation());
             dto.setStatus(counter.getStatus());
+            dto.setInitialOpeningCash(counter.getInitialOpeningCash());
 
             return dto;
 
@@ -76,6 +78,7 @@ public class BillingCounterServiceImpl implements BillingCounterService {
         dto.setCounterName(counter.getCounterName());
         dto.setLocation(counter.getLocation());
         dto.setStatus(counter.getStatus());
+        dto.setInitialOpeningCash(counter.getInitialOpeningCash());
 
         return dto;
     }
@@ -89,6 +92,7 @@ public class BillingCounterServiceImpl implements BillingCounterService {
         counter.setCounterName(dto.getCounterName());
         counter.setLocation(dto.getLocation());
         counter.setStatus(dto.getStatus());
+        counter.setInitialOpeningCash(dto.getInitialOpeningCash());
 
         repository.save(counter);
 

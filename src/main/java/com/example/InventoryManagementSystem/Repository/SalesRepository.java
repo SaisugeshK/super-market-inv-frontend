@@ -28,4 +28,21 @@ public interface SalesRepository extends JpaRepository<Sales, Long> {
     // Today's bill count
     @Query("SELECT COUNT(s) FROM Sales s WHERE s.saleDate >= :startOfDay")
     long getTodayBillCount(@Param("startOfDay") LocalDateTime startOfDay);
+
+    // Sales total per payment method for a counter within (from, to] — used by cash closing.
+    // Split into two queries (rather than "(:from IS NULL OR ...)") because a NULL bind
+    // parameter with no other type hint makes Postgres fail with
+    // "could not determine data type of parameter" on a plain JPQL comparison.
+    @Query("SELECT s.paymentMethod, COALESCE(SUM(s.totalAmount), 0) FROM Sales s " +
+           "WHERE s.counterId = :counterId AND s.saleDate > :from AND s.saleDate <= :to " +
+           "GROUP BY s.paymentMethod")
+    List<Object[]> sumSalesByPaymentMethodSince(@Param("counterId") Long counterId,
+                                                @Param("from") LocalDateTime from,
+                                                @Param("to") LocalDateTime to);
+
+    @Query("SELECT s.paymentMethod, COALESCE(SUM(s.totalAmount), 0) FROM Sales s " +
+           "WHERE s.counterId = :counterId AND s.saleDate <= :to " +
+           "GROUP BY s.paymentMethod")
+    List<Object[]> sumSalesByPaymentMethodAll(@Param("counterId") Long counterId,
+                                              @Param("to") LocalDateTime to);
 }

@@ -2,6 +2,8 @@ package com.example.InventoryManagementSystem.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "billing_counters")
 public class BillingCounter {
@@ -19,6 +21,18 @@ public class BillingCounter {
 
     @Column(length = 20)
     private String status = "active";
+
+    // Fallback opening CASH balance used only when the counter has never been closed before
+    @Column(name = "initial_opening_cash", precision = 12, scale = 2)
+    private BigDecimal initialOpeningCash;
+
+    public BigDecimal getInitialOpeningCash() {
+        return initialOpeningCash;
+    }
+
+    public void setInitialOpeningCash(BigDecimal initialOpeningCash) {
+        this.initialOpeningCash = initialOpeningCash;
+    }
 
     // Getters and Setters
 
