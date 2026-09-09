@@ -1,8 +1,12 @@
 package com.example.InventoryManagementSystem.controllor;
 
+import com.example.InventoryManagementSystem.dto.CheckoutRequestDto;
+import com.example.InventoryManagementSystem.dto.CheckoutResponseDto;
 import com.example.InventoryManagementSystem.dto.SalesRequestDTO;
 import com.example.InventoryManagementSystem.dto.SalesResponseDTO;
+import com.example.InventoryManagementSystem.service.CheckoutService;
 import com.example.InventoryManagementSystem.service.SalesService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +19,18 @@ import java.util.List;
 public class SalesController {
 
     private final SalesService salesService;
+    private final CheckoutService checkoutService;
 
-    // CREATE
+    // CREATE (legacy — header only; kept for backward compatibility)
     @PostMapping
     public ResponseEntity<SalesResponseDTO> createSale(@RequestBody SalesRequestDTO dto) {
         return ResponseEntity.ok(salesService.createSale(dto));
+    }
+
+    // ATOMIC CHECKOUT — whole sale, server-computed money, stock locked
+    @PostMapping("/checkout")
+    public ResponseEntity<CheckoutResponseDto> checkout(@Valid @RequestBody CheckoutRequestDto dto) {
+        return ResponseEntity.ok(checkoutService.checkout(dto));
     }
 
     // GET BY ID

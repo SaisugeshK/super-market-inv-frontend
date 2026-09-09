@@ -33,5 +33,22 @@ public class Sales {
 
     private BigDecimal totalAmount;
 
+    // Money breakdown — populated by the transactional checkout so the sale total
+    // is reconstructable and not dependent on client-supplied numbers.
+    @Column(name = "subtotal", precision = 12, scale = 2)
+    private BigDecimal subtotal;
+
+    @Column(name = "discount_amount", precision = 12, scale = 2)
+    private BigDecimal discountAmount;
+
+    @Column(name = "tax_amount", precision = 12, scale = 2)
+    private BigDecimal taxAmount;
+
+    @Column(name = "paid_amount", precision = 12, scale = 2)
+    private BigDecimal paidAmount;
+
+    @Column(name = "balance_amount", precision = 12, scale = 2)
+    private BigDecimal balanceAmount;
+
     private LocalDateTime saleDate = LocalDateTime.now();
 }

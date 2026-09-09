@@ -7,9 +7,7 @@ import com.example.InventoryManagementSystem.Repository.SalesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,12 +16,11 @@ import java.util.stream.Collectors;
 public class SalesServiceImpl implements SalesService {
 
     private final SalesRepository salesRepository;
+    private final DocumentNumberService documentNumberService;
 
-    // AUTO-GENERATE invoice number: INV-YYYYMMDD-XXXXX
+    // AUTO-GENERATE invoice number: INV-YYYYMMDD-XXXXX (concurrency-safe)
     private String generateInvoiceNumber() {
-        String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        long count = salesRepository.count() + 1;
-        return String.format("INV-%s-%05d", datePart, count);
+        return documentNumberService.nextInvoiceNumber();
     }
 
     // CREATE SALE
@@ -113,6 +110,11 @@ public class SalesServiceImpl implements SalesService {
         dto.setPaymentMethod(sale.getPaymentMethod());
         dto.setPaymentStatus(sale.getPaymentStatus());
         dto.setTotalAmount(sale.getTotalAmount());
+        dto.setSubtotal(sale.getSubtotal());
+        dto.setDiscountAmount(sale.getDiscountAmount());
+        dto.setTaxAmount(sale.getTaxAmount());
+        dto.setPaidAmount(sale.getPaidAmount());
+        dto.setBalanceAmount(sale.getBalanceAmount());
         dto.setSaleDate(sale.getSaleDate());
 
         return dto;

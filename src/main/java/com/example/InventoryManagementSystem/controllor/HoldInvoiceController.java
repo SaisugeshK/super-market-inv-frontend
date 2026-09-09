@@ -3,6 +3,7 @@ package com.example.InventoryManagementSystem.controllor;
 import com.example.InventoryManagementSystem.dto.HoldInvoiceRequestDto;
 import com.example.InventoryManagementSystem.dto.HoldInvoiceResponseDto;
 import com.example.InventoryManagementSystem.service.HoldInvoiceService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class HoldInvoiceController {
     @PostMapping
     public ResponseEntity<HoldInvoiceResponseDto>
     createHoldInvoice(
-            @RequestBody HoldInvoiceRequestDto dto) {
+            @Valid @RequestBody HoldInvoiceRequestDto dto) {
 
         return ResponseEntity.ok(
                 holdInvoiceService
@@ -51,7 +52,7 @@ public class HoldInvoiceController {
     public ResponseEntity<HoldInvoiceResponseDto>
     updateHoldInvoice(
             @PathVariable Long id,
-            @RequestBody HoldInvoiceRequestDto dto) {
+            @Valid @RequestBody HoldInvoiceRequestDto dto) {
 
         return ResponseEntity.ok(
                 holdInvoiceService

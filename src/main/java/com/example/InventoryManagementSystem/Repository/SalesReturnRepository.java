@@ -11,6 +11,10 @@ import java.util.List;
 public interface SalesReturnRepository
         extends JpaRepository<SalesReturn, Long> {
 
+    @Query("SELECT COALESCE(SUM(sr.returnQuantity), 0) FROM SalesReturn sr " +
+           "WHERE sr.salesItemId = :salesItemId")
+    int sumReturnedQtyForItem(@Param("salesItemId") Long salesItemId);
+
     // refund total per payment method for a counter within (from, to] — used by cash closing.
     // Joins to Sales (via saleId) to get the counter and the original payment method;
     // rejected refunds don't reduce cash so they are excluded.

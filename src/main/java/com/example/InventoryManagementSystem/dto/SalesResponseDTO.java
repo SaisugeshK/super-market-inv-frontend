@@ -16,5 +16,12 @@ public class SalesResponseDTO {
     private String paymentMethod;   // CASH, UPI, CARD
     private String paymentStatus;
     private BigDecimal totalAmount;
+
+    private BigDecimal subtotal;
+    private BigDecimal discountAmount;
+    private BigDecimal taxAmount;
+    private BigDecimal paidAmount;
+    private BigDecimal balanceAmount;
+
     private LocalDateTime saleDate;
 }

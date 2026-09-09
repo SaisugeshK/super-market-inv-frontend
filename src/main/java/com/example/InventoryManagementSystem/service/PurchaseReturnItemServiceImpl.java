@@ -68,7 +68,8 @@ public class PurchaseReturnItemServiceImpl
                 .product(product)
                 .movementType("RETURN_OUT")
                 .quantity(qty)
-                .referenceId(requestDTO.getPurchaseReturnId())
+                .referenceId(requestDTO.getPurchaseReturnId() == null ? null
+                        : requestDTO.getPurchaseReturnId().longValue())
                 .notes("Goods returned to supplier (purchase return "
                         + requestDTO.getPurchaseReturnId() + ")")
                 .build());
@@ -157,7 +158,8 @@ public class PurchaseReturnItemServiceImpl
                             .product(product)
                             .movementType("RETURN_IN")
                             .quantity(qty)
-                            .referenceId(entity.getPurchaseReturnId())
+                            .referenceId(entity.getPurchaseReturnId() == null ? null
+                                    : entity.getPurchaseReturnId().longValue())
                             .notes("Purchase-return line reversed")
                             .build());
                 });

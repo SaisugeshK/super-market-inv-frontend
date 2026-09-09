@@ -30,7 +30,7 @@ public class StockMovement {
     private Integer quantity;
 
     @Column(name = "reference_id")
-    private Integer referenceId;
+    private Long referenceId;
 
     @Column(columnDefinition = "TEXT")
     private String notes;

@@ -58,7 +58,7 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
                 .product(product)
                 .movementType("PURCHASE_IN")
                 .quantity(request.getQuantity())
-                .referenceId(Math.toIntExact(purchase.getPurchaseId()))
+                .referenceId(purchase.getPurchaseId())
                 .notes("Stock added from purchase " + purchase.getInvoiceNumber())
                 .build());
 

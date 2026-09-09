@@ -20,7 +20,7 @@ public class StockMovementRequest {
     @NotNull(message = "Quantity is required")
     private Integer quantity;
 
-    private Integer referenceId;
+    private Long referenceId;
 
     private String notes;
 }

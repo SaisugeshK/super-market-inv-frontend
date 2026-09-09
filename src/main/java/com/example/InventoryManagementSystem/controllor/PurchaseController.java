@@ -1,8 +1,11 @@
 package com.example.InventoryManagementSystem.controllor;
 
+import com.example.InventoryManagementSystem.dto.PurchaseReceiveRequestDto;
 import com.example.InventoryManagementSystem.dto.PurchaseRequestDto;
 import com.example.InventoryManagementSystem.dto.PurchaseResponseDto;
+import com.example.InventoryManagementSystem.service.PurchaseReceiveService;
 import com.example.InventoryManagementSystem.service.PurchaseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +19,24 @@ import java.util.List;
 public class PurchaseController {
 
     private final PurchaseService purchaseService;
+    private final PurchaseReceiveService purchaseReceiveService;
 
-    // CREATE PURCHASE
+    // CREATE PURCHASE (legacy — header only; kept for backward compatibility)
     @PostMapping
     public ResponseEntity<PurchaseResponseDto> createPurchase(
             @RequestBody PurchaseRequestDto request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(purchaseService.createPurchase(request));
+    }
+
+    // ATOMIC GOODS RECEIPT — whole purchase, server-computed totals, stock added in one transaction
+    @PostMapping("/receive")
+    public ResponseEntity<PurchaseResponseDto> receive(
+            @Valid @RequestBody PurchaseReceiveRequestDto request) {
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(purchaseReceiveService.receive(request));
     }
 
     // GET ALL PURCHASES

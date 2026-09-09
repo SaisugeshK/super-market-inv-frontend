@@ -3,6 +3,7 @@ package com.example.InventoryManagementSystem.controllor;
 import com.example.InventoryManagementSystem.dto.SalesItemRequestDTO;
 import com.example.InventoryManagementSystem.dto.SalesItemResponseDTO;
 import com.example.InventoryManagementSystem.service.SalesItemService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class SalesItemController {
     // CREATE
     @PostMapping
     public ResponseEntity<SalesItemResponseDTO> create(
-            @RequestBody SalesItemRequestDTO dto) {
+            @Valid @RequestBody SalesItemRequestDTO dto) {
 
         return ResponseEntity.ok(
                 salesItemService.createSalesItem(dto));
@@ -54,7 +55,7 @@ public class SalesItemController {
     @PutMapping("/{id}")
     public ResponseEntity<SalesItemResponseDTO> update(
             @PathVariable Long id,
-            @RequestBody SalesItemRequestDTO dto) {
+            @Valid @RequestBody SalesItemRequestDTO dto) {
 
         return ResponseEntity.ok(
                 salesItemService.updateSalesItem(id, dto)

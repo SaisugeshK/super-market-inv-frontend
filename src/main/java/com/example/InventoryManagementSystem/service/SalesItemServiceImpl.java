@@ -27,6 +27,10 @@ public class SalesItemServiceImpl implements SalesItemService {
     @Override
     public SalesItemResponseDTO createSalesItem(SalesItemRequestDTO dto) {
 
+        if (dto.getQuantity() == null || dto.getQuantity() <= 0) {
+            throw new RuntimeException("quantity must be positive");
+        }
+
         Product product = productRepository.findById(dto.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
@@ -61,7 +65,7 @@ public class SalesItemServiceImpl implements SalesItemService {
                 .product(product)
                 .movementType("SALE_OUT")
                 .quantity(dto.getQuantity())
-                .referenceId(dto.getSaleId() != null ? Math.toIntExact(dto.getSaleId()) : null)
+                .referenceId(dto.getSaleId())
                 .notes("Stock deducted from sale " + dto.getSaleId())
                 .build());
 

@@ -127,9 +127,14 @@ public class ReportService {
     // ─── PRODUCT SALES REPORT ────────────────────────────────────────────────────
     public List<java.util.Map<String, Object>> getProductSalesReport(LocalDateTime from, LocalDateTime to) {
 
-        List<Object[]> rows = (from != null || to != null)
-                ? salesItemRepository.getProductSalesSummaryBetween(from, to)
-                : salesItemRepository.getProductSalesSummary();
+        List<Object[]> rows;
+        if (from != null || to != null) {
+            LocalDateTime fromBound = from != null ? from : LocalDateTime.of(1970, 1, 1, 0, 0);
+            LocalDateTime toBound = to != null ? to : LocalDateTime.now();
+            rows = salesItemRepository.getProductSalesSummaryBetween(fromBound, toBound);
+        } else {
+            rows = salesItemRepository.getProductSalesSummary();
+        }
 
         List<java.util.Map<String, Object>> result = new ArrayList<>();
 

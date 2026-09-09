@@ -72,6 +72,11 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("Stock cannot be negative");
         }
 
+        if (dto.getBarcode() != null && !dto.getBarcode().isBlank()
+                && repository.existsByBarcode(dto.getBarcode())) {
+            throw new RuntimeException("Barcode already exists");
+        }
+
         Product p = new Product();
 
         p.setCategoryId(dto.getCategoryId());
@@ -168,8 +173,13 @@ public class ProductServiceImpl implements ProductService {
         if (dto.getSku() != null)
             product.setSku(dto.getSku());
 
-        if (dto.getBarcode() != null)
+        if (dto.getBarcode() != null && !dto.getBarcode().equals(product.getBarcode())) {
+            if (!dto.getBarcode().isBlank()
+                    && repository.existsByBarcodeAndProductIdNot(dto.getBarcode(), id)) {
+                throw new RuntimeException("Barcode already exists");
+            }
             product.setBarcode(dto.getBarcode());
+        }
 
         if (dto.getPurchasePrice() != null)
             product.setPurchasePrice(dto.getPurchasePrice());

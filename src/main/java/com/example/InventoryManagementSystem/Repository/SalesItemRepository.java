@@ -20,12 +20,14 @@ public interface SalesItemRepository extends JpaRepository<SalesItem, Long> {
     @Query("SELECT si.productId, SUM(si.quantity), SUM(si.total) FROM SalesItem si GROUP BY si.productId")
     List<Object[]> getProductSalesSummary();
 
-    // Product sales report filtered by sale date range (join SalesItem -> Sales on saleId)
+    // Product sales report filtered by sale date range (join SalesItem -> Sales on saleId).
+    // Both bounds must be supplied; the service substitutes sensible defaults when a
+    // side is missing. The "(:param IS NULL OR ...)" pattern is avoided on purpose —
+    // an untyped NULL bind makes Postgres fail with "could not determine data type".
     @Query("SELECT si.productId, SUM(si.quantity), SUM(si.total) " +
            "FROM SalesItem si, Sales s " +
            "WHERE si.saleId = s.saleId " +
-           "AND (:from IS NULL OR s.saleDate >= :from) " +
-           "AND (:to IS NULL OR s.saleDate <= :to) " +
+           "AND s.saleDate >= :from AND s.saleDate <= :to " +
            "GROUP BY si.productId")
     List<Object[]> getProductSalesSummaryBetween(@Param("from") LocalDateTime from,
                                                  @Param("to") LocalDateTime to);

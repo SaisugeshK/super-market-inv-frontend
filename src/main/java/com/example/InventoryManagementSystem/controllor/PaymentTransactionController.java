@@ -2,6 +2,7 @@ package com.example.InventoryManagementSystem.controllor;
 
 import com.example.InventoryManagementSystem.dto.*;
 import com.example.InventoryManagementSystem.service.PaymentTransactionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ public class PaymentTransactionController {
 
     // CREATE
     @PostMapping
-    public PaymentTransactionResponseDTO create(@RequestBody PaymentTransactionRequestDTO dto) {
+    public PaymentTransactionResponseDTO create(@Valid @RequestBody PaymentTransactionRequestDTO dto) {
         return service.create(dto);
     }
 
