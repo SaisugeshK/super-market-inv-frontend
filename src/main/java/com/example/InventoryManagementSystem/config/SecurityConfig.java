@@ -41,6 +41,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/error").permitAll()
+                        // Pre-deployment fix — Cloud Run's health probe carries no JWT; the
+                        // endpoint itself only ever reports up/down (management.endpoint.health.
+                        // show-details=never in application.properties), so this is safe to leave
+                        // open.
+                        .requestMatchers("/actuator/health").permitAll()
 
                         // Bulk product import — ADMIN only (single-product create stays
                         // open to any authenticated user, unchanged; this is a separate,
@@ -67,8 +72,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers(HttpMethod.DELETE, "/api/expenses/**").hasAnyRole("ADMIN", "MANAGER")
 
-                        // Everything else: any authenticated user (cashier included)
-                        .anyRequest().authenticated()
+                        // Every other /api path: any authenticated user (cashier included)
+                        .requestMatchers("/api/**").authenticated()
+                        // Pre-deployment fix — the React build (dist/) is served as static content
+                        // from resources/static, with SpaForwardingController forwarding deep-link
+                        // routes back to index.html for React Router. None of that carries a JWT
+                        // (it's the app shell itself, loaded before login), so everything outside
+                        // /api/** stays open here; only the /api/** rules above gate real data.
+                        .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authEx) -> {
