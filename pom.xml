@@ -38,7 +38,13 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
-
+		<!-- Pre-deployment fix — Cloud Run needs a health check to know the container is
+		     alive. Endpoint exposure is locked down in application.properties to
+		     /actuator/health only. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
 
 		<!-- Validation -->
 		<dependency>
@@ -50,6 +56,15 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- Cloud SQL connector: lets the JDBC driver dial a Cloud SQL instance
+		     by name over Google's private connector instead of host:port -->
+		<dependency>
+			<groupId>com.google.cloud.sql</groupId>
+			<artifactId>postgres-socket-factory</artifactId>
+			<version>1.19.1</version>
 			<scope>runtime</scope>
 		</dependency>
 
