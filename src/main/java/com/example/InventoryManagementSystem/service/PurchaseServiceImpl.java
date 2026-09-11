@@ -12,6 +12,7 @@ import com.example.InventoryManagementSystem.model.PurchaseItem;
 import com.example.InventoryManagementSystem.model.Supplier;
 import com.example.InventoryManagementSystem.model.User;
 import com.example.InventoryManagementSystem.Repository.SupplierRepository;
+import com.example.InventoryManagementSystem.Repository.StockMovementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     private final UserRepository userRepository;
     private final PurchaseItemRepository purchaseItemRepository;
     private final ProductRepository productRepository;
+    private final StockMovementRepository stockMovementRepository;
 
     // CREATE PURCHASE
     @Override
@@ -117,6 +119,12 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
         }
         purchaseItemRepository.deleteAll(items);
+
+        // Same class of gap as sales (BUG-036): the PURCHASE_IN movement this
+        // receipt created carries a plain reference_id, not a mapped relation,
+        // so it won't cascade — remove it explicitly or it becomes an orphan.
+        stockMovementRepository.deleteAll(
+                stockMovementRepository.findByMovementTypeAndReferenceId("PURCHASE_IN", id));
 
         purchaseRepository.delete(purchase);
     }

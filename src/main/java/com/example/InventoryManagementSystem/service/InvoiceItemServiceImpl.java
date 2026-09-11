@@ -1,7 +1,7 @@
 package com.example.InventoryManagementSystem.service;
 
 import com.example.InventoryManagementSystem.dto.InvoiceItemDto;
-import com.example.InventoryManagementSystem.Model.InvoiceItem;
+import com.example.InventoryManagementSystem.model.InvoiceItem;
 import com.example.InventoryManagementSystem.Repository.InvoiceItemRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;

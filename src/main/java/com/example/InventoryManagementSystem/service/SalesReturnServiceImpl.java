@@ -2,7 +2,6 @@ package com.example.InventoryManagementSystem.service;
 
 import com.example.InventoryManagementSystem.Repository.ProductRepository;
 import com.example.InventoryManagementSystem.Repository.SalesItemRepository;
-import com.example.InventoryManagementSystem.Repository.SalesRepository;
 import com.example.InventoryManagementSystem.Repository.SalesReturnRepository;
 import com.example.InventoryManagementSystem.Repository.StockMovementRepository;
 import com.example.InventoryManagementSystem.dto.SalesReturnRequestDTO;
@@ -28,7 +27,6 @@ public class SalesReturnServiceImpl implements SalesReturnService {
 
     private final SalesReturnRepository salesReturnRepository;
     private final SalesItemRepository salesItemRepository;
-    private final SalesRepository salesRepository;
     private final ProductRepository productRepository;
     private final StockMovementRepository stockMovementRepository;
 

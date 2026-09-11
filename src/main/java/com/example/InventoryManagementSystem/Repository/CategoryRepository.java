@@ -11,4 +11,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     Optional<Category> findByCategoryName(String categoryName);
 
     boolean existsByCategoryName(String categoryName);
+
+    // Bulk import: resolve a spreadsheet category name to an existing row
+    // case-insensitively, so "snacks" / "Snacks" / "SNACKS" all match one category.
+    Optional<Category> findByCategoryNameIgnoreCase(String categoryName);
 }

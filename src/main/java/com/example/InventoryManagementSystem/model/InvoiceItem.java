@@ -1,4 +1,4 @@
-package com.example.InventoryManagementSystem.Model;
+package com.example.InventoryManagementSystem.model;
 
 import jakarta.persistence.*;
 

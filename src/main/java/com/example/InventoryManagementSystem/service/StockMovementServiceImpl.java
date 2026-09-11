@@ -7,7 +7,6 @@ import com.example.InventoryManagementSystem.model.Product;
 import com.example.InventoryManagementSystem.model.StockMovement;
 import com.example.InventoryManagementSystem.Repository.ProductRepository;
 import com.example.InventoryManagementSystem.Repository.StockMovementRepository;
-import com.example.InventoryManagementSystem.service.StockMovementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

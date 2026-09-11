@@ -26,9 +26,11 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final TokenBlacklistService tokenBlacklist;
 
-    public JwtAuthFilter(JwtUtil jwtUtil) {
+    public JwtAuthFilter(JwtUtil jwtUtil, TokenBlacklistService tokenBlacklist) {
         this.jwtUtil = jwtUtil;
+        this.tokenBlacklist = tokenBlacklist;
     }
 
     @Override
@@ -42,9 +44,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            Claims claims = jwtUtil.parse(header.substring(7).trim());
+            String rawToken = header.substring(7).trim();
+            Claims claims = jwtUtil.parse(rawToken);
 
-            if (claims != null && claims.getSubject() != null) {
+            if (claims != null && claims.getSubject() != null
+                    && !tokenBlacklist.isRevoked(rawToken)) {
                 String role = claims.get("role", String.class);
                 List<SimpleGrantedAuthority> authorities = (role == null || role.isBlank())
                         ? List.of()

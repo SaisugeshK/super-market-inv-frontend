@@ -38,6 +38,7 @@ public class Supplier {
     @Column(name = "gst_number", length = 20)
     private String gstNumber;
 
+    @Builder.Default
     @Column(nullable = false)
     private String status = "active";
 

@@ -5,7 +5,6 @@ import com.example.InventoryManagementSystem.dto.ProductBarcodeRequestDTO;
 import com.example.InventoryManagementSystem.dto.ProductBarcodeResponseDTO;
 import com.example.InventoryManagementSystem.model.ProductBarcode;
 import com.example.InventoryManagementSystem.Repository.ProductBarcodeRepository;
-import com.example.InventoryManagementSystem.service.ProductBarcodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

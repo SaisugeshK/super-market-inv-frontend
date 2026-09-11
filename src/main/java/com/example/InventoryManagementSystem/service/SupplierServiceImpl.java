@@ -21,7 +21,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     public SupplierResponse createSupplier(SupplierRequest request) {
 
-        if (request.getEmail() != null &&
+        if (request.getEmail() != null && !request.getEmail().isBlank() &&
                 supplierRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Supplier email already exists");
         }

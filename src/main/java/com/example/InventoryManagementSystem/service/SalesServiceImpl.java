@@ -3,9 +3,13 @@ package com.example.InventoryManagementSystem.service;
 import com.example.InventoryManagementSystem.dto.SalesRequestDTO;
 import com.example.InventoryManagementSystem.dto.SalesResponseDTO;
 import com.example.InventoryManagementSystem.model.Sales;
+import com.example.InventoryManagementSystem.Repository.SalesItemRepository;
 import com.example.InventoryManagementSystem.Repository.SalesRepository;
+import com.example.InventoryManagementSystem.Repository.StockMovementRepository;
+import com.example.InventoryManagementSystem.Repository.PaymentTransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +20,9 @@ import java.util.stream.Collectors;
 public class SalesServiceImpl implements SalesService {
 
     private final SalesRepository salesRepository;
+    private final SalesItemRepository salesItemRepository;
+    private final StockMovementRepository stockMovementRepository;
+    private final PaymentTransactionRepository paymentTransactionRepository;
     private final DocumentNumberService documentNumberService;
 
     // AUTO-GENERATE invoice number: INV-YYYYMMDD-XXXXX (concurrency-safe)
@@ -89,11 +96,21 @@ public class SalesServiceImpl implements SalesService {
 
     // DELETE
     @Override
+    @Transactional
     public void deleteSale(Long id) {
 
         Sales sale = salesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sale not found with id: " + id));
 
+        // SalesItem, StockMovement and PaymentTransaction all carry a plain id
+        // (not a mapped relation) so JPA won't cascade — remove them
+        // explicitly or they become orphans. (Stock is intentionally left
+        // as-is: deleting the sale record does not imply the goods came back
+        // onto the shelf — use a sales return for that.)
+        salesItemRepository.deleteAll(salesItemRepository.findBySaleId(id));
+        stockMovementRepository.deleteAll(
+                stockMovementRepository.findByMovementTypeAndReferenceId("SALE_OUT", id));
+        paymentTransactionRepository.deleteAll(paymentTransactionRepository.findByInvoiceId(id));
         salesRepository.delete(sale);
     }
 

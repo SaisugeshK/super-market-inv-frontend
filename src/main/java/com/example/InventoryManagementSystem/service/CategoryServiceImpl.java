@@ -4,7 +4,6 @@ package com.example.InventoryManagementSystem.service;
 import com.example.InventoryManagementSystem.dto.CategoryRequest;
 import com.example.InventoryManagementSystem.dto.CategoryResponse;
 import com.example.InventoryManagementSystem.model.Category;
-import com.example.InventoryManagementSystem.exception.*;
 import com.example.InventoryManagementSystem.Repository.CategoryRepository;
 import com.example.InventoryManagementSystem.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;

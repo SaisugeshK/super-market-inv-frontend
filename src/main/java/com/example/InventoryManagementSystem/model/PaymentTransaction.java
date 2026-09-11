@@ -27,5 +27,6 @@ public class PaymentTransaction {
 
     private BigDecimal amount;
 
+    @Builder.Default
     private OffsetDateTime paymentDate = OffsetDateTime.now();
 }

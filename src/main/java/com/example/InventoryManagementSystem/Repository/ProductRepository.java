@@ -21,6 +21,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByBarcodeAndProductIdNot(String barcode, Long productId);
 
+    // Bulk import: SKU has a DB-level unique constraint but no app-level check existed
+    // for the single-create path (it just relies on DataIntegrityViolationException).
+    // Import needs a specific pre-check so it can report a per-row message instead.
+    boolean existsBySku(String sku);
+
     // Checkout: lock the product row so concurrent sales cannot race the stock update
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Product p WHERE p.productId = :id")

@@ -4,7 +4,6 @@ package com.example.InventoryManagementSystem.service;
 
 import com.example.InventoryManagementSystem.dto.CustomerRequestDTO;
 import com.example.InventoryManagementSystem.dto.CustomerResponseDTO;
-import com.example.InventoryManagementSystem.dto.CustomerRequestDTO;
 
 import java.util.List;
 

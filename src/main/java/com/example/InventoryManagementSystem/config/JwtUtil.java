@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtUtil {
@@ -27,6 +28,7 @@ public class JwtUtil {
     public String generateToken(String email, String role) {
         Instant now = Instant.now();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString()) // unique per token, so revoking one never affects another
                 .subject(email)
                 .claim("role", role == null ? "" : role)
                 .issuedAt(Date.from(now))
@@ -54,5 +56,11 @@ public class JwtUtil {
     public String validateAndGetSubject(String token) {
         Claims c = parse(token);
         return c == null ? null : c.getSubject();
+    }
+
+    /** Expiry of a valid token, or {@code null} if it can't be parsed. */
+    public Instant getExpiry(String token) {
+        Claims c = parse(token);
+        return c == null || c.getExpiration() == null ? null : c.getExpiration().toInstant();
     }
 }

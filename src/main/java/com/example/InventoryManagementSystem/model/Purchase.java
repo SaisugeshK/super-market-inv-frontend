@@ -37,14 +37,17 @@ public class Purchase {
     private BigDecimal tax;
 
     // amount actually paid to supplier
+    @Builder.Default
     @Column(name = "paid_amount", precision = 12, scale = 2)
     private BigDecimal paidAmount = BigDecimal.ZERO;
 
     // total value of goods sent back to the supplier (sum of purchase-return items)
+    @Builder.Default
     @Column(name = "returned_amount", precision = 12, scale = 2)
     private BigDecimal returnedAmount = BigDecimal.ZERO;
 
     // auto-computed: totalAmount - returnedAmount - paidAmount
+    @Builder.Default
     @Column(name = "pending_amount", precision = 12, scale = 2)
     private BigDecimal pendingAmount = BigDecimal.ZERO;
 

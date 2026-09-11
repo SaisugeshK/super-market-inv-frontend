@@ -1,10 +1,14 @@
 package com.example.InventoryManagementSystem.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 import java.math.BigDecimal;
 
 public class BillingCounterDto {
 
     private Long counterId;
+
+    @NotBlank(message = "counterName is required")
     private String counterName;
     private String location;
     private String status;

@@ -9,4 +9,7 @@ public interface StockMovementRepository
         extends JpaRepository<StockMovement, Long> {
 
     List<StockMovement> findByProduct_ProductId(Long productId);
+
+    // Movements recorded against a sale (SALE_OUT) — cleaned up when the sale is deleted.
+    List<StockMovement> findByMovementTypeAndReferenceId(String movementType, Long referenceId);
 }

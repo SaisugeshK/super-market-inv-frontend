@@ -4,6 +4,7 @@ package com.example.InventoryManagementSystem.controllor;
 import com.example.InventoryManagementSystem.dto.ProductRequestDTO;
 import com.example.InventoryManagementSystem.dto.ProductResponseDTO;
 import com.example.InventoryManagementSystem.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponseDTO> create(@RequestBody ProductRequestDTO dto) {
+    public ResponseEntity<ProductResponseDTO> create(@Valid @RequestBody ProductRequestDTO dto) {
         return ResponseEntity.ok(service.createProduct(dto));
     }
 
@@ -49,7 +50,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> update(
             @PathVariable Long id,
-            @RequestBody ProductRequestDTO dto) {
+            @Valid @RequestBody ProductRequestDTO dto) {
         return ResponseEntity.ok(service.updateProduct(id, dto));
     }
 

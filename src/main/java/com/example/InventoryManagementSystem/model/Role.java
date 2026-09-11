@@ -1,9 +1,7 @@
 package com.example.InventoryManagementSystem.model;
 
-import com.example.InventoryManagementSystem.Repository.RoleRepository;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.OffsetDateTime;
 
